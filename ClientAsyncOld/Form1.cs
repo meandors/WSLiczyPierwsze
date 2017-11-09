@@ -19,8 +19,6 @@ namespace ClientAsyncOld
             InitializeComponent();
         }
 
-        LiczbyPierwszeClient client;
-
         private void GetPrimeAsync_Click(object sender, EventArgs e)
         {
             LiczbyPierwszeClient client = new LiczbyPierwszeClient();
@@ -33,9 +31,8 @@ namespace ClientAsyncOld
             try
             {
                 rtbResult.Text = string.Empty;
-                client.GetPierwszeAsync(bottomRange, topRange);
+                client.GetPierwszeAsync(bottomRange, topRange, client);
 
-                client.Close();
             }
             catch
             {
@@ -45,16 +42,15 @@ namespace ClientAsyncOld
 
         private void Client_GetPierwszeCompleted(object sender, GetPierwszeCompletedEventArgs e)
         {
-            foreach (var prime in e.Result)
-            {
-                rtbResult.Text += prime + ",   ";
-            }
+            LiczbyPierwszeClient client = (LiczbyPierwszeClient)e.UserState;
+            rtbResult.Text = string.Join(", ", e.Result);
+            client.Close();
         }
 
         private void bGetBeginEnd_Click(object sender, EventArgs e)
         {
 
-            client = new LiczbyPierwszeClient();
+            LiczbyPierwszeClient client = new LiczbyPierwszeClient();
 
             int bottomRange, topRange;
             int.TryParse(tbBottomRange.Text, out bottomRange);
@@ -63,8 +59,8 @@ namespace ClientAsyncOld
             try
             {
                 rtbResult.Text = string.Empty;
-                client.BeginGetPierwsze(bottomRange, topRange, new AsyncCallback(GetPrimeCallback), null);
-                client.Close();
+                client.BeginGetPierwsze(bottomRange, topRange, new AsyncCallback(GetPrimeCallback), client);
+                
             }
             catch
             {
@@ -74,13 +70,21 @@ namespace ClientAsyncOld
 
         void GetPrimeCallback(IAsyncResult result)
         {
+            LiczbyPierwszeClient client = (LiczbyPierwszeClient)result.AsyncState;
             int[] parameters = client.EndGetPierwsze(result);
 
-            string text = string.Empty;
-            foreach (var prime in parameters)
-                text += prime + ",   ";
+            string text = string.Join(", ", parameters);
 
             AddTextToTextBox(text);
+
+            try
+            {
+                client.Close();
+            }
+            catch
+            {
+                client.Abort();
+            }
         }
 
         private delegate void AddTextDelegate(string s);
