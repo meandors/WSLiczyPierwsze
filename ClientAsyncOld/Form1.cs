@@ -20,7 +20,6 @@ namespace ClientAsyncOld
         }
 
         LiczbyPierwszeClient client;
-        private BackgroundWorker worker = new BackgroundWorker();
 
         private void GetPrimeAsync_Click(object sender, EventArgs e)
         {
@@ -52,8 +51,6 @@ namespace ClientAsyncOld
             }
         }
 
-
-        //TODO do poprawy!!!
         private void bGetBeginEnd_Click(object sender, EventArgs e)
         {
 
@@ -79,18 +76,11 @@ namespace ClientAsyncOld
         {
             int[] parameters = client.EndGetPierwsze(result);
 
-            worker.DoWork += new DoWorkEventHandler(Worker_DoWork);
-            worker.RunWorkerAsync(parameters);
-        }
+            string text = string.Empty;
+            foreach (var prime in parameters)
+                text += prime + ",   ";
 
-        private void Worker_DoWork(object sender, DoWorkEventArgs e)
-        {
-            int[] primeNumbers = e.Argument as int[];
-            string result = string.Empty;
-            foreach (var prime in primeNumbers)
-                result += prime + ",   ";
-
-            AddTextToTextBox(result);
+            AddTextToTextBox(text);
         }
 
         private delegate void AddTextDelegate(string s);
