@@ -18,9 +18,15 @@ namespace UslugaLiczbPierwszych
             int liczby;
             bool czyNieJestPierwsza;
 
-            for (int i = dolnyZakres; i <= gornyZakres; i = i + 2)
+            if (dolnyZakres < 2)
+            {
+                dolnyZakres = 2;
+            }
+
+            for (int i = dolnyZakres; i <= gornyZakres; i = i + 1)
             {
                 czyNieJestPierwsza = false;
+
                 for (liczby = 2; liczby <= i / 2; liczby++)
                 {
                     if (i % liczby == 0)
